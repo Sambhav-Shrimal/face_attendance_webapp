@@ -1,0 +1,884 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .back-btn {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .sections {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+        }
+
+        .section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+        }
+
+        .section h3 {
+            margin-bottom: 20px;
+            color: #333;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+            padding: 5px 10px;
+            font-size: 12px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .alert {
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-size: 13px;
+            display: none;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .list-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .list-item-content {
+            flex: 1;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 5px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        .badge-paid {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .badge-unpaid {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .toggle {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+
+        .toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 24px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: #667eea;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        .time-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-header h2 {
+            color: #333;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: #999;
+        }
+
+        .close-btn:hover {
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="back-btn">← Back to Home</a>
+
+        <div class="header">
+            <h1>⚙️ System Settings</h1>
+            <p>Configure office hours, breaks, holidays, and manage employees</p>
+        </div>
+
+        <div class="sections">
+            <!-- Manual Attendance Marking -->
+            <div class="section">
+                <h3>📝 Manual Attendance Marking</h3>
+                <form id="manualAttendanceForm">
+                    <div class="form-group">
+                        <label>Select Employee</label>
+                        <select id="manual_employee_id" required>
+                            <option value="">Choose an employee...</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Action</label>
+                        <select id="manual_action" required>
+                            <option value="">Select action...</option>
+                            <option value="CHECK_IN">Check In</option>
+                            <option value="LUNCH_START">Lunch Start</option>
+                            <option value="RESUME">Resume (After Lunch)</option>
+                            <option value="CHECK_OUT">Check Out</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Time</label>
+                        <input type="time" id="manual_time" required>
+                    </div>
+
+                    <button type="submit" class="btn btn-success">✅ Mark Attendance</button>
+                    <div id="manualAlert" class="alert"></div>
+                </form>
+            </div>
+
+            <!-- Edit Employee Details -->
+            <div class="section">
+                <h3>✏️ Edit Employee Details</h3>
+                <form id="editEmployeeForm">
+                    <div class="form-group">
+                        <label>Select Employee</label>
+                        <select id="edit_employee_id" required>
+                            <option value="">Choose an employee...</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Employee Name</label>
+                        <input type="text" id="edit_emp_name" readonly>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Pay Type</label>
+                        <select id="edit_pay_type" required>
+                            <option value="hourly">Hourly</option>
+                            <option value="daily">Daily</option>
+                            <option value="monthly">Monthly</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Rate (₹)</label>
+                        <input type="number" id="edit_rate" step="0.01" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Shift Hours</label>
+                        <input type="number" id="edit_shift_hours" step="0.5" required>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">💾 Update Employee</button>
+                    <div id="editAlert" class="alert"></div>
+                </form>
+            </div>
+
+            <!-- Office Hours -->
+            <div class="section">
+                <h3>🕐 Office Hours</h3>
+                <form id="officeHoursForm">
+                    <div class="form-group">
+                        <label>Office Start Time</label>
+                        <input type="time" id="office_start_time" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Office End Time</label>
+                        <input type="time" id="office_end_time" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>OT Rate Multiplier</label>
+                        <input type="number" id="ot_rate_multiplier" step="0.1" value="1.5" required>
+                        <small style="color: #666;">e.g., 1.5 means 1.5x rate for OT</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; justify-content: space-between;">
+                            <span>Sunday Auto-OT</span>
+                            <label class="toggle">
+                                <input type="checkbox" id="sunday_auto_ot" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">💾 Save Office Hours</button>
+                    <div id="officeAlert" class="alert"></div>
+                </form>
+            </div>
+
+            <!-- Break Configuration -->
+            <div class="section">
+                <h3>☕ Break Configuration</h3>
+                <form id="breakForm">
+                    <div class="form-group">
+                        <label>Break Name</label>
+                        <input type="text" id="break_name" placeholder="e.g., Lunch, Tea" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Duration (Minutes)</label>
+                        <input type="number" id="duration_minutes" placeholder="e.g., 30" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; justify-content: space-between;">
+                            <span>Is Paid?</span>
+                            <label class="toggle">
+                                <input type="checkbox" id="is_paid" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </label>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Deduct Rate per Extra Minute (₹)</label>
+                        <input type="number" id="deduct_rate" step="0.01" placeholder="e.g., 1.67">
+                        <small style="color: #666;">Auto-calculated from hourly rate if left blank</small>
+                    </div>
+
+                    <button type="submit" class="btn btn-success">➕ Add Break</button>
+                    <div id="breakAlert" class="alert"></div>
+                </form>
+
+                <div id="breaksList" style="margin-top: 20px;"></div>
+            </div>
+
+            <!-- Holiday Management -->
+            <div class="section">
+                <h3>📅 Holiday Management</h3>
+                <form id="holidayForm">
+                    <div class="form-group">
+                        <label>Holiday Date</label>
+                        <input type="date" id="holiday_date" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Holiday Name</label>
+                        <input type="text" id="holiday_name" placeholder="e.g., Diwali, Republic Day" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; justify-content: space-between;">
+                            <span>OT Applicable?</span>
+                            <label class="toggle">
+                                <input type="checkbox" id="is_ot_applicable" checked>
+                                <span class="slider"></span>
+                            </label>
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn btn-success">➕ Add Holiday</button>
+                    <div id="holidayAlert" class="alert"></div>
+                </form>
+
+                <div id="holidaysList" style="margin-top: 20px;"></div>
+            </div>
+
+            <!-- Export Date Range -->
+            <div class="section">
+                <h3>📊 Export Date Range</h3>
+                <form id="exportForm">
+                    <div class="form-group">
+                        <label>From Date</label>
+                        <input type="date" id="from_date" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>To Date</label>
+                        <input type="date" id="to_date" required>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">📥 Download CSV</button>
+                    <div id="exportAlert" class="alert"></div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Load all data on page load
+        window.addEventListener('load', () => {
+            loadEmployees();
+            loadOfficeHours();
+            loadBreaks();
+            loadHolidays();
+        });
+
+        // Load employees for dropdowns
+        async function loadEmployees() {
+            try {
+                const response = await fetch('/api/employees');
+                const data = await response.json();
+
+                if (data.success && data.employees) {
+                    const manualSelect = document.getElementById('manual_employee_id');
+                    const editSelect = document.getElementById('edit_employee_id');
+
+                    manualSelect.innerHTML = '<option value="">Choose an employee...</option>';
+                    editSelect.innerHTML = '<option value="">Choose an employee...</option>';
+
+                    data.employees.forEach(emp => {
+                        const opt1 = document.createElement('option');
+                        opt1.value = emp.employee_id;
+                        opt1.textContent = `${emp.emp_name} (${emp.employee_id})`;
+                        manualSelect.appendChild(opt1);
+
+                        const opt2 = document.createElement('option');
+                        opt2.value = emp.employee_id;
+                        opt2.textContent = `${emp.emp_name} (${emp.employee_id})`;
+                        editSelect.appendChild(opt2);
+                    });
+                }
+            } catch (err) {
+                console.error('Error loading employees:', err);
+            }
+        }
+
+        // Load employee details when selected
+        document.getElementById('edit_employee_id').addEventListener('change', async (e) => {
+            const employeeId = e.target.value;
+            if (!employeeId) {
+                document.getElementById('edit_emp_name').value = '';
+                document.getElementById('edit_pay_type').value = '';
+                document.getElementById('edit_rate').value = '';
+                document.getElementById('edit_shift_hours').value = '';
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/employees');
+                const data = await response.json();
+
+                if (data.success) {
+                    const emp = data.employees.find(e => e.employee_id === employeeId);
+                    if (emp) {
+                        document.getElementById('edit_emp_name').value = emp.emp_name;
+                        document.getElementById('edit_pay_type').value = emp.pay_type;
+                        document.getElementById('edit_rate').value = emp.rate;
+                        document.getElementById('edit_shift_hours').value = emp.shift_hours;
+                    }
+                }
+            } catch (err) {
+                console.error('Error loading employee details:', err);
+            }
+        });
+
+        // Manual Attendance Form
+        document.getElementById('manualAttendanceForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const employeeId = document.getElementById('manual_employee_id').value;
+            const action = document.getElementById('manual_action').value;
+            const time = document.getElementById('manual_time').value;
+
+            if (!employeeId || !action || !time) {
+                alert('Please fill all fields');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/mark_attendance_manual', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        employee_id: employeeId,
+                        action: action,
+                        time: time
+                    })
+                });
+
+                const result = await response.json();
+                const alert = document.getElementById('manualAlert');
+
+                if (result.success) {
+                    alert.textContent = result.message;
+                    alert.className = 'alert alert-success';
+                    e.target.reset();
+                } else {
+                    alert.textContent = result.message;
+                    alert.className = 'alert alert-error';
+                }
+                alert.style.display = 'block';
+                setTimeout(() => alert.style.display = 'none', 4000);
+            } catch (err) {
+                console.error('Error:', err);
+                alert('Error marking attendance');
+            }
+        });
+
+        // Edit Employee Form
+        document.getElementById('editEmployeeForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const data = {
+                employee_id: document.getElementById('edit_employee_id').value,
+                pay_type: document.getElementById('edit_pay_type').value,
+                rate: parseFloat(document.getElementById('edit_rate').value),
+                shift_hours: parseFloat(document.getElementById('edit_shift_hours').value)
+            };
+
+            try {
+                const response = await fetch('/api/update_employee', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+                const alert = document.getElementById('editAlert');
+
+                if (result.success) {
+                    alert.textContent = result.message;
+                    alert.className = 'alert alert-success';
+                    loadEmployees();
+                } else {
+                    alert.textContent = result.message;
+                    alert.className = 'alert alert-error';
+                }
+                alert.style.display = 'block';
+                setTimeout(() => alert.style.display = 'none', 3000);
+            } catch (err) {
+                console.error('Error:', err);
+            }
+        });
+
+        // Load office hours
+        async function loadOfficeHours() {
+            try {
+                const response = await fetch('/api/get_settings');
+                const data = await response.json();
+
+                if (data.success && data.settings) {
+                    document.getElementById('office_start_time').value = data.settings.office_start_time;
+                    document.getElementById('office_end_time').value = data.settings.office_end_time;
+                    document.getElementById('ot_rate_multiplier').value = data.settings.ot_rate_multiplier;
+                    document.getElementById('sunday_auto_ot').checked = data.settings.sunday_auto_ot;
+                }
+            } catch (err) {
+                console.error('Error loading settings:', err);
+            }
+        }
+
+        // Save office hours
+        document.getElementById('officeHoursForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const data = {
+                office_start_time: document.getElementById('office_start_time').value,
+                office_end_time: document.getElementById('office_end_time').value,
+                ot_rate_multiplier: parseFloat(document.getElementById('ot_rate_multiplier').value),
+                sunday_auto_ot: document.getElementById('sunday_auto_ot').checked
+            };
+
+            try {
+                const response = await fetch('/api/update_settings', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+                const alert = document.getElementById('officeAlert');
+
+                if (result.success) {
+                    alert.textContent = result.message;
+                    alert.className = 'alert alert-success';
+                } else {
+                    alert.textContent = result.message;
+                    alert.className = 'alert alert-error';
+                }
+                alert.style.display = 'block';
+                setTimeout(() => alert.style.display = 'none', 3000);
+            } catch (err) {
+                console.error('Error saving settings:', err);
+            }
+        });
+
+        // Load breaks
+        async function loadBreaks() {
+            try {
+                const response = await fetch('/api/get_breaks');
+                const data = await response.json();
+
+                if (data.success) {
+                    const list = document.getElementById('breaksList');
+                    list.innerHTML = '';
+
+                    data.breaks.forEach(b => {
+                        const item = document.createElement('div');
+                        item.className = 'list-item';
+                        item.innerHTML = `
+                            <div class="list-item-content">
+                                <strong>${b.break_name}</strong>
+                                <span class="badge ${b.is_paid ? 'badge-paid' : 'badge-unpaid'}">
+                                    ${b.is_paid ? 'PAID' : 'UNPAID'}
+                                </span>
+                                <br>
+                                <small>${b.duration_minutes} minutes</small>
+                            </div>
+                            <button class="btn btn-danger" onclick="deleteBreak(${b.id})">🗑️</button>
+                        `;
+                        list.appendChild(item);
+                    });
+                }
+            } catch (err) {
+                console.error('Error loading breaks:', err);
+            }
+        }
+
+        // Add break
+        document.getElementById('breakForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const data = {
+                break_name: document.getElementById('break_name').value,
+                duration_minutes: parseInt(document.getElementById('duration_minutes').value),
+                is_paid: document.getElementById('is_paid').checked,
+                deduct_rate_per_minute: parseFloat(document.getElementById('deduct_rate').value) || 0
+            };
+
+            try {
+                const response = await fetch('/api/add_break', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+                const alert = document.getElementById('breakAlert');
+
+                if (result.success) {
+                    alert.textContent = result.message;
+                    alert.className = 'alert alert-success';
+                    alert.style.display = 'block';
+                    e.target.reset();
+                    document.getElementById('is_paid').checked = true;
+                    loadBreaks();
+                    setTimeout(() => alert.style.display = 'none', 3000);
+                } else {
+                    alert.textContent = result.message;
+                    alert.className = 'alert alert-error';
+                    alert.style.display = 'block';
+                }
+            } catch (err) {
+                console.error('Error adding break:', err);
+            }
+        });
+
+        // Delete break
+        async function deleteBreak(breakId) {
+            if (!confirm('Delete this break type?')) return;
+
+            try {
+                const response = await fetch(`/api/delete_break/${breakId}`, {method: 'DELETE'});
+                const result = await response.json();
+
+                if (result.success) {
+                    loadBreaks();
+                }
+            } catch (err) {
+                console.error('Error deleting break:', err);
+            }
+        }
+
+        // Load holidays
+        async function loadHolidays() {
+            try {
+                const response = await fetch('/api/get_holidays');
+                const data = await response.json();
+
+                if (data.success) {
+                    const list = document.getElementById('holidaysList');
+                    list.innerHTML = '';
+
+                    data.holidays.forEach(h => {
+                        const item = document.createElement('div');
+                        item.className = 'list-item';
+                        item.innerHTML = `
+                            <div class="list-item-content">
+                                <strong>${h.holiday_name}</strong>
+                                ${h.is_ot_applicable ? '<span class="badge badge-paid">OT</span>' : ''}
+                                <br>
+                                <small>${h.holiday_date}</small>
+                            </div>
+                            <button class="btn btn-danger" onclick="deleteHoliday(${h.id})">🗑️</button>
+                        `;
+                        list.appendChild(item);
+                    });
+                }
+            } catch (err) {
+                console.error('Error loading holidays:', err);
+            }
+        }
+
+        // Add holiday
+        document.getElementById('holidayForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const data = {
+                holiday_date: document.getElementById('holiday_date').value,
+                holiday_name: document.getElementById('holiday_name').value,
+                is_ot_applicable: document.getElementById('is_ot_applicable').checked
+            };
+
+            try {
+                const response = await fetch('/api/add_holiday', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+                const alert = document.getElementById('holidayAlert');
+
+                if (result.success) {
+                    alert.textContent = result.message;
+                    alert.className = 'alert alert-success';
+                    alert.style.display = 'block';
+                    e.target.reset();
+                    document.getElementById('is_ot_applicable').checked = true;
+                    loadHolidays();
+                    setTimeout(() => alert.style.display = 'none', 3000);
+                } else {
+                    alert.textContent = result.message;
+                    alert.className = 'alert alert-error';
+                    alert.style.display = 'block';
+                }
+            } catch (err) {
+                console.error('Error adding holiday:', err);
+            }
+        });
+
+        // Delete holiday
+        async function deleteHoliday(holidayId) {
+            if (!confirm('Delete this holiday?')) return;
+
+            try {
+                const response = await fetch(`/api/delete_holiday/${holidayId}`, {method: 'DELETE'});
+                const result = await response.json();
+
+                if (result.success) {
+                    loadHolidays();
+                }
+            } catch (err) {
+                console.error('Error deleting holiday:', err);
+            }
+        }
+
+        // Export date range
+        document.getElementById('exportForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const fromDate = document.getElementById('from_date').value;
+            const toDate = document.getElementById('to_date').value;
+
+            try {
+                const response = await fetch('/api/export_csv_range', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({from_date: fromDate, to_date: toDate})
+                });
+
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `attendance_${fromDate}_to_${toDate}.csv`;
+                    a.click();
+
+                    const alert = document.getElementById('exportAlert');
+                    alert.textContent = 'CSV downloaded successfully!';
+                    alert.className = 'alert alert-success';
+                    alert.style.display = 'block';
+                    setTimeout(() => alert.style.display = 'none', 3000);
+                } else {
+                    const result = await response.json();
+                    const alert = document.getElementById('exportAlert');
+                    alert.textContent = result.message || 'Export failed';
+                    alert.className = 'alert alert-error';
+                    alert.style.display = 'block';
+                }
+            } catch (err) {
+                console.error('Error exporting:', err);
+            }
+        });
+    </script>
+</body>
+</html>

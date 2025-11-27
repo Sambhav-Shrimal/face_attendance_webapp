@@ -1,0 +1,2 @@
+emp_name,employee_id,date,start_time,lunch_start,lunch_end,end_time,total_hours,break_hours,overtime_hours,pay_type,rate,shift_hours,total_pay
+Raj,3,2025-11-14,2025-11-14 16:29:34,,,,,,,hourly,1000.0,6.0,

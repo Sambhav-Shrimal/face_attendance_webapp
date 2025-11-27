@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Employees</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .back-btn {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .back-btn:hover {
+            text-decoration: underline;
+        }
+
+        .employee-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .employee-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+
+        .employee-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        .employee-card h3 {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .employee-card p {
+            font-size: 13px;
+            color: #555;
+            margin: 5px 0;
+        }
+
+        .employee-card .id {
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .employee-card .pay {
+            background: white;
+            padding: 8px;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-weight: 600;
+        }
+
+        .no-employees {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .no-employees .emoji {
+            font-size: 60px;
+            margin-bottom: 20px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px;
+            color: #666;
+        }
+
+        .stats {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .stat-card {
+            flex: 1;
+            min-width: 150px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .stat-card .number {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .stat-card .label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="back-btn">← Back to Home</a>
+
+        <div class="header">
+            <h1>👥 All Employees</h1>
+            <p>Registered employees in the system</p>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="number" id="totalEmployees">0</div>
+                <div class="label">Total Employees</div>
+            </div>
+        </div>
+
+        <div id="loading" class="loading">
+            ⏳ Loading employees...
+        </div>
+
+        <div id="noEmployees" class="no-employees" style="display:none;">
+            <div class="emoji">👤</div>
+            <h3>No employees registered yet</h3>
+            <p>Register your first employee to get started</p>
+        </div>
+
+        <div id="employeeGrid" class="employee-grid" style="display:none;"></div>
+    </div>
+
+    <script>
+        window.addEventListener('load', loadEmployees);
+
+        async function loadEmployees() {
+            const loading = document.getElementById('loading');
+            const noEmployees = document.getElementById('noEmployees');
+            const grid = document.getElementById('employeeGrid');
+            const totalEmployeesEl = document.getElementById('totalEmployees');
+
+            loading.style.display = 'block';
+            noEmployees.style.display = 'none';
+            grid.style.display = 'none';
+
+            try {
+                const response = await fetch('/api/employees');
+                const data = await response.json();
+
+                loading.style.display = 'none';
+
+                if (data.success && data.employees.length > 0) {
+                    totalEmployeesEl.textContent = data.employees.length;
+                    grid.innerHTML = '';
+
+                    data.employees.forEach(emp => {
+                        const card = document.createElement('div');
+                        card.className = 'employee-card';
+
+                        const regDate = new Date(emp.registered_date);
+                        const formattedDate = regDate.toLocaleDateString('en-IN', {
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric'
+                        });
+
+                        card.innerHTML = `
+                            <h3>👤 ${emp.emp_name}</h3>
+                            <p class="id">ID: ${emp.employee_id}</p>
+                            <p>Pay: ${emp.pay_type.charAt(0).toUpperCase() + emp.pay_type.slice(1)}</p>
+                            <p>Shift: ${emp.shift_hours} hours</p>
+                            <div class="pay">
+                                Rate: ₹${emp.rate}/${emp.pay_type === 'hourly' ? 'hr' : 'day'}
+                            </div>
+                            <p style="margin-top: 10px; font-size: 11px; color: #999;">
+                                Registered: ${formattedDate}
+                            </p>
+                        `;
+
+                        grid.appendChild(card);
+                    });
+
+                    grid.style.display = 'grid';
+                } else {
+                    totalEmployeesEl.textContent = '0';
+                    noEmployees.style.display = 'block';
+                }
+            } catch (err) {
+                loading.style.display = 'none';
+                alert('Error loading employees: ' + err.message);
+                console.error('Load error:', err);
+            }
+        }
+    </script>
+</body>
+</html>

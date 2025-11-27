@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register Employee</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .camera-section {
+            margin: 25px 0;
+            text-align: center;
+        }
+
+        #video {
+            width: 100%;
+            max-width: 350px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            display: none;
+        }
+
+        #canvas {
+            display: none;
+        }
+
+        #capturedImage {
+            width: 100%;
+            max-width: 350px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            display: none;
+            margin-top: 15px;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
+            color: #333;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            color: #333;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .back-btn {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .back-btn:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="back-btn">← Back to Home</a>
+
+        <div class="header">
+            <h1>👤 Register New Employee</h1>
+            <p>Fill details and capture face</p>
+        </div>
+
+        <form id="registerForm">
+            <div class="form-group">
+                <label>Employee ID *</label>
+                <input type="text" id="employee_id" required placeholder="e.g., EMP001">
+            </div>
+
+            <div class="form-group">
+                <label>Employee Name *</label>
+                <input type="text" id="emp_name" required placeholder="e.g., Raj Kumar">
+            </div>
+
+            <div class="form-group">
+                <label>Pay Type *</label>
+                <select id="pay_type" required>
+                    <option value="">Select...</option>
+                    <option value="hourly">Hourly</option>
+                    <option value="daily">Daily</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Rate (₹) *</label>
+                <input type="number" id="rate" required placeholder="e.g., 100" step="0.01">
+            </div>
+
+            <div class="form-group">
+                <label>Shift Hours *</label>
+                <input type="number" id="shift_hours" required placeholder="e.g., 8" step="0.5">
+            </div>
+
+            <div class="camera-section">
+                <video id="video" autoplay playsinline></video>
+                <canvas id="canvas"></canvas>
+                <img id="capturedImage" alt="Captured face">
+            </div>
+
+            <button type="button" class="btn btn-primary" id="startCameraBtn">
+                📸 Start Camera
+            </button>
+
+            <button type="button" class="btn btn-success" id="captureBtn" style="display:none;">
+                ✅ Capture Face
+            </button>
+
+            <button type="button" class="btn btn-danger" id="retakeBtn" style="display:none;">
+                🔄 Retake
+            </button>
+
+            <button type="submit" class="btn btn-primary" id="submitBtn" style="display:none;">
+                💾 Register Employee
+            </button>
+        </form>
+
+        <div id="alertBox" class="alert"></div>
+    </div>
+
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const capturedImage = document.getElementById('capturedImage');
+        const startCameraBtn = document.getElementById('startCameraBtn');
+        const captureBtn = document.getElementById('captureBtn');
+        const retakeBtn = document.getElementById('retakeBtn');
+        const submitBtn = document.getElementById('submitBtn');
+        const alertBox = document.getElementById('alertBox');
+        const form = document.getElementById('registerForm');
+
+        let stream = null;
+        let capturedImageData = null;
+
+        function showAlert(message, type) {
+            alertBox.textContent = message;
+            alertBox.className = `alert alert-${type}`;
+            alertBox.style.display = 'block';
+            setTimeout(() => {
+                alertBox.style.display = 'none';
+            }, 5000);
+        }
+
+        startCameraBtn.addEventListener('click', async () => {
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: 'user' }
+                });
+                video.srcObject = stream;
+                video.style.display = 'block';
+                startCameraBtn.style.display = 'none';
+                captureBtn.style.display = 'block';
+            } catch (err) {
+                showAlert('Camera access denied! Please allow camera permissions.', 'error');
+                console.error('Camera error:', err);
+            }
+        });
+
+        captureBtn.addEventListener('click', () => {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(video, 0, 0);
+
+            capturedImageData = canvas.toDataURL('image/jpeg');
+            capturedImage.src = capturedImageData;
+            capturedImage.style.display = 'block';
+
+            // Stop camera
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
+
+            video.style.display = 'none';
+            captureBtn.style.display = 'none';
+            retakeBtn.style.display = 'block';
+            submitBtn.style.display = 'block';
+        });
+
+        retakeBtn.addEventListener('click', async () => {
+            capturedImage.style.display = 'none';
+            capturedImageData = null;
+            retakeBtn.style.display = 'none';
+            submitBtn.style.display = 'none';
+
+            // Restart camera
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: 'user' }
+                });
+                video.srcObject = stream;
+                video.style.display = 'block';
+                captureBtn.style.display = 'block';
+            } catch (err) {
+                showAlert('Could not restart camera', 'error');
+            }
+        });
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            if (!capturedImageData) {
+                showAlert('Please capture your face first!', 'error');
+                return;
+            }
+
+            const data = {
+                employee_id: document.getElementById('employee_id').value,
+                emp_name: document.getElementById('emp_name').value,
+                pay_type: document.getElementById('pay_type').value,
+                rate: document.getElementById('rate').value,
+                shift_hours: document.getElementById('shift_hours').value,
+                image: capturedImageData
+            };
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = '⏳ Registering...';
+
+            try {
+                const response = await fetch('/api/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    showAlert(result.message, 'success');
+                    setTimeout(() => {
+                        window.location.href = '/';
+                    }, 2000);
+                } else {
+                    showAlert(result.message, 'error');
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = '💾 Register Employee';
+                }
+            } catch (err) {
+                showAlert('Network error! Please try again.', 'error');
+                submitBtn.disabled = false;
+                submitBtn.textContent = '💾 Register Employee';
+                console.error('Submit error:', err);
+            }
+        });
+    </script>
+</body>
+</html>

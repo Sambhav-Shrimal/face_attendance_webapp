@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .back-btn {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .back-btn:hover {
+            text-decoration: underline;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
+            color: #333;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .records-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        thead {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        tr:hover {
+            background: #f5f5f5;
+        }
+
+        .no-records {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .delete-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .delete-btn:hover {
+            background: #c82333;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="back-btn">← Back to Home</a>
+
+        <div class="header">
+            <h1>📊 Today's Dashboard</h1>
+            <p id="dateDisplay"></p>
+        </div>
+
+        <div class="actions">
+            <button class="btn btn-primary" onclick="loadRecords()">🔄 Refresh</button>
+            <button class="btn btn-success" onclick="exportCSV()">📥 Export CSV</button>
+        </div>
+
+        <div class="records-container">
+            <div id="loading" class="loading">
+                ⏳ Loading records...
+            </div>
+
+            <div id="noRecords" class="no-records" style="display:none;">
+                📭 No attendance records for today
+            </div>
+
+            <table id="recordsTable" style="display:none;">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>ID</th>
+                        <th>In</th>
+                        <th>Lunch</th>
+                        <th>Resume</th>
+                        <th>Out</th>
+                        <th>Hours</th>
+                        <th>Pay</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="recordsBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // Display today's date
+        const today = new Date();
+        const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        document.getElementById('dateDisplay').textContent = today.toLocaleDateString('en-IN', dateOptions);
+
+        // Load records on page load
+        window.addEventListener('load', loadRecords);
+
+        async function loadRecords() {
+            const loading = document.getElementById('loading');
+            const noRecords = document.getElementById('noRecords');
+            const table = document.getElementById('recordsTable');
+            const tbody = document.getElementById('recordsBody');
+
+            loading.style.display = 'block';
+            noRecords.style.display = 'none';
+            table.style.display = 'none';
+
+            try {
+                const response = await fetch('/api/today_records');
+                const data = await response.json();
+
+                loading.style.display = 'none';
+
+                if (data.success && data.records.length > 0) {
+                    tbody.innerHTML = '';
+
+                    data.records.forEach(record => {
+                        const row = document.createElement('tr');
+
+                        const formatTime = (datetime) => {
+                            if (!datetime) return '-';
+                            const date = new Date(datetime);
+                            return date.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+                        };
+
+                        row.innerHTML = `
+                            <td><strong>${record.emp_name}</strong></td>
+                            <td>${record.employee_id}</td>
+                            <td>${formatTime(record.start_time)}</td>
+                            <td>${formatTime(record.lunch_start)}</td>
+                            <td>${formatTime(record.lunch_end)}</td>
+                            <td>${formatTime(record.end_time)}</td>
+                            <td>${record.total_hours || '-'}</td>
+                            <td>₹${record.total_pay || '-'}</td>
+                            <td>
+                                <button class="delete-btn" onclick="deleteRecord('${record.employee_id}')">
+                                    🗑️
+                                </button>
+                            </td>
+                        `;
+
+                        tbody.appendChild(row);
+                    });
+
+                    table.style.display = 'table';
+                } else {
+                    noRecords.style.display = 'block';
+                }
+            } catch (err) {
+                loading.style.display = 'none';
+                alert('Error loading records: ' + err.message);
+                console.error('Load error:', err);
+            }
+        }
+
+        async function deleteRecord(employeeId) {
+            if (!confirm('Are you sure you want to delete this record?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/delete_record', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ employee_id: employeeId })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert(result.message);
+                    loadRecords();
+                } else {
+                    alert(result.message);
+                }
+            } catch (err) {
+                alert('Error deleting record: ' + err.message);
+                console.error('Delete error:', err);
+            }
+        }
+
+        function exportCSV() {
+            window.location.href = '/api/export_csv';
+        }
+    </script>
+</body>
+</html>

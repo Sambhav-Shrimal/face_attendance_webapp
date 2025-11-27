@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mark Attendance</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .camera-section {
+            margin: 25px 0;
+            text-align: center;
+        }
+
+        #video {
+            width: 100%;
+            max-width: 400px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        #canvas {
+            display: none;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .result-box {
+            margin-top: 25px;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            display: none;
+        }
+
+        .result-box.success {
+            background: #d4edda;
+            border: 2px solid #28a745;
+        }
+
+        .result-box.error {
+            background: #f8d7da;
+            border: 2px solid #dc3545;
+        }
+
+        .result-box h2 {
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+
+        .result-box p {
+            font-size: 14px;
+            margin: 5px 0;
+        }
+
+        .result-box .emoji {
+            font-size: 50px;
+            margin-bottom: 10px;
+        }
+
+        .back-btn {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .back-btn:hover {
+            text-decoration: underline;
+        }
+
+        .instructions {
+            background: #f0f0f0;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .instructions ul {
+            margin-left: 20px;
+            margin-top: 10px;
+        }
+
+        .instructions li {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="back-btn">← Back to Home</a>
+
+        <div class="header">
+            <h1>📸 Mark Attendance</h1>
+            <p>Show your face to the camera</p>
+        </div>
+
+        <div class="instructions">
+            <strong>📋 Automatic Actions:</strong>
+            <ul>
+                <li>1st scan → Check-in</li>
+                <li>2nd scan → Lunch start</li>
+                <li>3rd scan → Resume work</li>
+                <li>4th scan → Check-out</li>
+            </ul>
+        </div>
+
+        <div class="camera-section">
+            <video id="video" autoplay playsinline></video>
+            <canvas id="canvas"></canvas>
+        </div>
+
+        <button type="button" class="btn btn-primary" id="scanBtn">
+            🎯 Scan Face
+        </button>
+
+        <button type="button" class="btn btn-secondary" id="resetBtn" style="display:none;">
+            🔄 Scan Another Person
+        </button>
+
+        <div id="resultBox" class="result-box"></div>
+    </div>
+
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const scanBtn = document.getElementById('scanBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const resultBox = document.getElementById('resultBox');
+
+        let stream = null;
+        let isScanning = false;
+
+        // SUCCESS SOUND
+        function playSuccessSound() {
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+
+            oscillator.frequency.value = 800;
+            oscillator.type = 'sine';
+
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.3);
+        }
+
+        // ERROR SOUND
+        function playErrorSound() {
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+
+            oscillator.frequency.value = 200;
+            oscillator.type = 'sawtooth';
+
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.2);
+        }
+
+        // Start camera on page load
+        window.addEventListener('load', async () => {
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: 'user' }
+                });
+                video.srcObject = stream;
+            } catch (err) {
+                showResult('❌', 'Camera Error', 'Please allow camera access!', 'error');
+                playErrorSound();
+                console.error('Camera error:', err);
+            }
+        });
+
+        function showResult(emoji, title, message, type, details = null) {
+            resultBox.innerHTML = `
+                <div class="emoji">${emoji}</div>
+                <h2>${title}</h2>
+                <p>${message}</p>
+                ${details ? `<p><strong>${details}</strong></p>` : ''}
+            `;
+            resultBox.className = `result-box ${type}`;
+            resultBox.style.display = 'block';
+
+            // Add tick mark animation for success
+            if (type === 'success') {
+                const tickMark = document.createElement('div');
+                tickMark.innerHTML = '✓';
+                tickMark.style.cssText = `
+                    position: fixed;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%) scale(0);
+                    font-size: 150px;
+                    color: #28a745;
+                    animation: tickPop 0.6s ease-out forwards;
+                    z-index: 9999;
+                    text-shadow: 0 0 20px rgba(40, 167, 69, 0.5);
+                `;
+                document.body.appendChild(tickMark);
+
+                setTimeout(() => tickMark.remove(), 800);
+            }
+
+            scanBtn.style.display = 'none';
+            resetBtn.style.display = 'block';
+        }
+
+        // Add CSS animation for tick
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes tickPop {
+                0% { transform: translate(-50%, -50%) scale(0) rotate(-45deg); opacity: 0; }
+                50% { transform: translate(-50%, -50%) scale(1.2) rotate(0deg); opacity: 1; }
+                100% { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 1; }
+            }
+        `;
+        document.head.appendChild(style);
+
+        scanBtn.addEventListener('click', async () => {
+            if (isScanning) return;
+
+            isScanning = true;
+            scanBtn.disabled = true;
+            scanBtn.textContent = '⏳ Scanning...';
+
+            // Capture image
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(video, 0, 0);
+
+            const imageData = canvas.toDataURL('image/jpeg');
+
+            try {
+                const response = await fetch('/api/mark_attendance', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ image: imageData })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // PLAY SUCCESS SOUND
+                    playSuccessSound();
+
+                    let emoji = '✅';
+                    let title = result.action.replace('_', ' ');
+
+                    if (result.action === 'CHECK_IN') {
+                        emoji = '🌅';
+                    } else if (result.action === 'LUNCH_START') {
+                        emoji = '🍽️';
+                    } else if (result.action === 'RESUME') {
+                        emoji = '💼';
+                    } else if (result.action === 'CHECK_OUT') {
+                        emoji = '🌙';
+                    } else if (result.action === 'COMPLETED') {
+                        emoji = '✅';
+                    }
+
+                    let details = '';
+                    if (result.action === 'CHECK_OUT') {
+                        details = `Hours: ${result.hours} | OT: ${result.overtime}h<br>`;
+                        if (result.before_office_ot > 0) {
+                            details += `Before Office OT: ${result.before_office_ot}h<br>`;
+                        }
+                        if (result.after_office_ot > 0) {
+                            details += `After Office OT: ${result.after_office_ot}h<br>`;
+                        }
+                        if (result.excess_break > 0) {
+                            details += `Excess Break Deducted: -₹${result.break_deduction}<br>`;
+                        }
+                        details += `Gross Pay: ₹${result.gross_pay}`;
+                        if (result.advance_deducted > 0) {
+                            details += `<br>Advance Deducted: -₹${result.advance_deducted}`;
+                            details += `<br><strong>Net Pay: ₹${result.net_pay}</strong>`;
+                        }
+                    }
+
+                    showResult(emoji, title, result.message, 'success', details);
+                } else {
+                    // PLAY ERROR SOUND
+                    playErrorSound();
+                    showResult('❌', 'Error', result.message, 'error');
+                }
+            } catch (err) {
+                playErrorSound();
+                showResult('⚠️', 'Network Error', 'Could not connect to server!', 'error');
+                console.error('Scan error:', err);
+            } finally {
+                isScanning = false;
+                scanBtn.disabled = false;
+                scanBtn.textContent = '🎯 Scan Face';
+            }
+        });
+
+        resetBtn.addEventListener('click', () => {
+            resultBox.style.display = 'none';
+            scanBtn.style.display = 'block';
+            resetBtn.style.display = 'none';
+        });
+
+        // Stop camera when leaving page
+        window.addEventListener('beforeunload', () => {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
+        });
+    </script>
+</body>
+</html>

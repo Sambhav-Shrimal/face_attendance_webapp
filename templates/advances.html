@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advance Payments</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .back-btn {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .sections {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .sections {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+        }
+
+        .section h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 60px;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .alert {
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-size: 13px;
+            display: none;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        thead {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+            font-size: 13px;
+        }
+
+        tr:hover {
+            background: #f5f5f5;
+        }
+
+        .status-pending {
+            color: #ff9800;
+            font-weight: 600;
+        }
+
+        .status-deducted {
+            color: #4caf50;
+            font-weight: 600;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .summary-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .summary-card .amount {
+            font-size: 32px;
+            font-weight: 700;
+            margin: 10px 0;
+        }
+
+        .summary-card .label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="back-btn">← Back to Home</a>
+
+        <div class="header">
+            <h1>💰 Advance Payments</h1>
+            <p>Manage employee advances</p>
+        </div>
+
+        <div class="summary-card">
+            <div class="label">Total Pending Advances</div>
+            <div class="amount" id="totalPending">₹0</div>
+        </div>
+
+        <div class="sections">
+            <!-- Give Advance Form -->
+            <div class="section">
+                <h3>💸 Give Advance</h3>
+                <form id="advanceForm">
+                    <div class="form-group">
+                        <label>Employee *</label>
+                        <select id="employee_id" required>
+                            <option value="">Select Employee...</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Amount (₹) *</label>
+                        <input type="number" id="amount" required placeholder="e.g., 5000" step="0.01">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Payment Mode *</label>
+                        <select id="payment_mode" required>
+                            <option value="">Select...</option>
+                            <option value="Cash">Cash</option>
+                            <option value="UPI - PhonePe">UPI - PhonePe</option>
+                            <option value="UPI - GPay">UPI - GPay</option>
+                            <option value="UPI - Paytm">UPI - Paytm</option>
+                            <option value="Bank Transfer">Bank Transfer</option>
+                            <option value="Cheque">Cheque</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Reference/Txn ID</label>
+                        <input type="text" id="reference_no" placeholder="Transaction ID, Cheque No, etc.">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Reason</label>
+                        <textarea id="reason" placeholder="Optional note..."></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">💰 Give Advance</button>
+
+                    <div id="advanceAlert" class="alert"></div>
+                </form>
+            </div>
+
+            <!-- View Employee Advances -->
+            <div class="section">
+                <h3>📊 Employee Advances</h3>
+                <div class="form-group">
+                    <label>Select Employee</label>
+                    <select id="view_employee_id">
+                        <option value="">Select Employee...</option>
+                    </select>
+                </div>
+
+                <div id="employeeAdvances" style="display:none;">
+                    <div style="background: #fff; padding: 15px; border-radius: 10px; margin-top: 15px;">
+                        <h4 id="empName" style="color: #333; margin-bottom: 10px;"></h4>
+                        <p><strong>Total Pending:</strong> <span id="empPending" style="color: #ff9800; font-size: 18px;">₹0</span></p>
+                        <p style="font-size: 12px; color: #666; margin-top: 10px;">This amount will be auto-deducted on next checkout</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- All Advances Table -->
+        <h3 style="margin-bottom: 15px; color: #333;">📋 All Advances</h3>
+
+        <div id="loading" class="loading">
+            ⏳ Loading advances...
+        </div>
+
+        <div id="advancesTable" style="display:none; overflow-x: auto;">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Employee</th>
+                        <th>Amount</th>
+                        <th>Payment Mode</th>
+                        <th>Reference</th>
+                        <th>Status</th>
+                        <th>Balance</th>
+                    </tr>
+                </thead>
+                <tbody id="advancesBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // Load employees on page load
+        window.addEventListener('load', () => {
+            loadEmployees();
+            loadAllAdvances();
+        });
+
+        async function loadEmployees() {
+            try {
+                const response = await fetch('/api/employees');
+                const data = await response.json();
+
+                if (data.success) {
+                    const select1 = document.getElementById('employee_id');
+                    const select2 = document.getElementById('view_employee_id');
+
+                    data.employees.forEach(emp => {
+                        const option1 = new Option(`${emp.emp_name} (${emp.employee_id})`, emp.employee_id);
+                        const option2 = new Option(`${emp.emp_name} (${emp.employee_id})`, emp.employee_id);
+                        select1.add(option1);
+                        select2.add(option2);
+                    });
+                }
+            } catch (err) {
+                console.error('Error loading employees:', err);
+            }
+        }
+
+        // Give advance form
+        document.getElementById('advanceForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const data = {
+                employee_id: document.getElementById('employee_id').value,
+                amount: document.getElementById('amount').value,
+                payment_mode: document.getElementById('payment_mode').value,
+                reference_no: document.getElementById('reference_no').value,
+                reason: document.getElementById('reason').value
+            };
+
+            const btn = e.target.querySelector('button');
+            btn.disabled = true;
+            btn.textContent = '⏳ Processing...';
+
+            try {
+                const response = await fetch('/api/give_advance', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+                const alert = document.getElementById('advanceAlert');
+
+                if (result.success) {
+                    alert.textContent = result.message;
+                    alert.className = 'alert alert-success';
+                    alert.style.display = 'block';
+                    e.target.reset();
+                    loadAllAdvances();
+                    setTimeout(() => alert.style.display = 'none', 3000);
+                } else {
+                    alert.textContent = result.message;
+                    alert.className = 'alert alert-error';
+                    alert.style.display = 'block';
+                }
+            } catch (err) {
+                const alert = document.getElementById('advanceAlert');
+                alert.textContent = 'Network error! Please try again.';
+                alert.className = 'alert alert-error';
+                alert.style.display = 'block';
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '💰 Give Advance';
+            }
+        });
+
+        // View employee advances
+        document.getElementById('view_employee_id').addEventListener('change', async (e) => {
+            const employeeId = e.target.value;
+            if (!employeeId) {
+                document.getElementById('employeeAdvances').style.display = 'none';
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/employee_advances/${employeeId}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    const empName = e.target.options[e.target.selectedIndex].text;
+                    document.getElementById('empName').textContent = empName;
+                    document.getElementById('empPending').textContent = `₹${data.total_pending.toFixed(2)}`;
+                    document.getElementById('employeeAdvances').style.display = 'block';
+                }
+            } catch (err) {
+                console.error('Error loading employee advances:', err);
+            }
+        });
+
+        // Load all advances
+        async function loadAllAdvances() {
+            const loading = document.getElementById('loading');
+            const table = document.getElementById('advancesTable');
+            const tbody = document.getElementById('advancesBody');
+
+            loading.style.display = 'block';
+            table.style.display = 'none';
+
+            try {
+                const response = await fetch('/api/all_advances');
+                const data = await response.json();
+
+                loading.style.display = 'none';
+
+                if (data.success && data.advances.length > 0) {
+                    tbody.innerHTML = '';
+                    let totalPending = 0;
+
+                    data.advances.forEach(adv => {
+                        const row = document.createElement('tr');
+                        const statusClass = adv.status === 'pending' ? 'status-pending' : 'status-deducted';
+
+                        row.innerHTML = `
+                            <td>${adv.date}</td>
+                            <td><strong>${adv.emp_name}</strong><br><small>${adv.employee_id}</small></td>
+                            <td>₹${adv.amount.toFixed(2)}</td>
+                            <td>${adv.payment_mode}</td>
+                            <td>${adv.reference_no || '-'}</td>
+                            <td class="${statusClass}">${adv.status.toUpperCase()}</td>
+                            <td>₹${adv.remaining_balance.toFixed(2)}</td>
+                        `;
+
+                        tbody.appendChild(row);
+
+                        if (adv.status === 'pending') {
+                            totalPending += adv.remaining_balance;
+                        }
+                    });
+
+                    document.getElementById('totalPending').textContent = `₹${totalPending.toFixed(2)}`;
+                    table.style.display = 'block';
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding: 40px; color: #999;">No advances recorded yet</td></tr>';
+                    table.style.display = 'block';
+                }
+            } catch (err) {
+                loading.style.display = 'none';
+                console.error('Error loading advances:', err);
+            }
+        }
+    </script>
+</body>
+</html>

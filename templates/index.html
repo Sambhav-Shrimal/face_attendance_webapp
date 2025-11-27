@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Face Attendance System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 400px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .header .emoji {
+            font-size: 50px;
+            margin-bottom: 15px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .menu-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 18px 20px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            color: white;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
+            color: #333;
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+            color: #333;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            color: #333;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .emoji-icon {
+            font-size: 24px;
+        }
+
+        .footer {
+            margin-top: 30px;
+            text-align: center;
+            color: white;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="emoji">🎭</div>
+            <h1>Face Attendance</h1>
+            <p>Automated attendance system</p>
+        </div>
+
+        <div class="menu-buttons">
+            <a href="/attendance" class="btn btn-primary">
+                <span class="emoji-icon">📸</span>
+                Mark Attendance
+            </a>
+
+            <a href="/register" class="btn btn-success">
+                <span class="emoji-icon">👤</span>
+                Register Employee
+            </a>
+
+            <a href="/dashboard" class="btn btn-info">
+                <span class="emoji-icon">📊</span>
+                View Dashboard
+            </a>
+
+            <a href="/advances" class="btn btn-warning">
+                <span class="emoji-icon">💰</span>
+                Advance Payments
+            </a>
+
+            <a href="/payslip" class="btn btn-success">
+                <span class="emoji-icon">💵</span>
+                Generate Payslip
+            </a>
+
+            <a href="/settings" class="btn btn-info">
+                <span class="emoji-icon">⚙️</span>
+                Settings
+            </a>
+
+            <a href="/employees" class="btn btn-warning">
+                <span class="emoji-icon">👥</span>
+                All Employees
+            </a>
+        </div>
+    </div>
+
+    <div class="footer">
+        <p>Make sure you're on the same WiFi network</p>
+        <p>© 2025 Face Attendance System</p>
+    </div>
+</body>
+</html>

@@ -1,0 +1,24 @@
+[WinError 10038] An operation was attempted on something that is not a socket
+Traceback (most recent call last):
+  File "C:\Users\heet1\PyCharmMiscProject\face_attendance_webapp\app.py", line 1485, in <module>
+    app.run(host="0.0.0.0", port=5000)
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heet1\PyCharmMiscProject\.venv\Lib\site-packages\flask\app.py", line 662, in run
+    run_simple(t.cast(str, host), port, self, **options)
+    ~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heet1\PyCharmMiscProject\.venv\Lib\site-packages\werkzeug\serving.py", line 1093, in run_simple
+    srv = make_server(
+        hostname,
+    ...<7 lines>...
+        fd=fd,
+    )
+  File "C:\Users\heet1\PyCharmMiscProject\.venv\Lib\site-packages\werkzeug\serving.py", line 930, in make_server
+    return ThreadedWSGIServer(
+        host, port, app, request_handler, passthrough_errors, ssl_context, fd=fd
+    )
+  File "C:\Users\heet1\PyCharmMiscProject\.venv\Lib\site-packages\werkzeug\serving.py", line 792, in __init__
+    self.socket = socket.fromfd(fd, address_family, socket.SOCK_STREAM)
+                  ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\heet1\AppData\Local\Programs\Python\Python314\Lib\socket.py", line 554, in fromfd
+    nfd = dup(fd)
+OSError: [WinError 10038] An operation was attempted on something that is not a socket

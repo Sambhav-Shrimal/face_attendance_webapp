@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Payslip</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .back-btn {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .selection-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        select, input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .payslip {
+            border: 2px solid #333;
+            padding: 30px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .payslip-header {
+            text-align: center;
+            border-bottom: 2px solid #333;
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+        }
+
+        .payslip-header h2 {
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .employee-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #555;
+        }
+
+        .attendance-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 13px;
+        }
+
+        .attendance-table th {
+            background: #667eea;
+            color: white;
+            padding: 10px;
+            text-align: left;
+        }
+
+        .attendance-table td {
+            padding: 8px 10px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .attendance-table tr:hover {
+            background: #f5f5f5;
+        }
+
+        .status-present {
+            color: #28a745;
+            font-weight: 600;
+        }
+
+        .status-absent {
+            color: #dc3545;
+            font-weight: 600;
+        }
+
+        .status-holiday {
+            color: #ff9800;
+            font-weight: 600;
+        }
+
+        .summary-section {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+        }
+
+        .summary-label {
+            font-weight: 600;
+            color: #555;
+        }
+
+        .summary-value {
+            font-weight: 700;
+            color: #333;
+        }
+
+        .total-section {
+            margin-top: 20px;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 10px;
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+            font-size: 16px;
+        }
+
+        .net-pay {
+            font-size: 24px;
+            font-weight: 700;
+            border-top: 2px solid white;
+            padding-top: 15px;
+            margin-top: 15px;
+        }
+
+        .actions {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+
+            .container {
+                box-shadow: none;
+                border-radius: 0;
+            }
+
+            .back-btn, .selection-section, .actions {
+                display: none;
+            }
+
+            .payslip {
+                display: block !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="back-btn">← Back to Home</a>
+
+        <div class="header">
+            <h1>💰 Employee Payslip</h1>
+            <p>Generate detailed salary slip</p>
+        </div>
+
+        <div class="selection-section">
+            <div class="form-group">
+                <label>Select Employee</label>
+                <select id="employee_id">
+                    <option value="">Select Employee...</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>From Date</label>
+                <input type="date" id="from_date">
+            </div>
+
+            <div class="form-group">
+                <label>To Date</label>
+                <input type="date" id="to_date">
+            </div>
+
+            <button class="btn btn-primary" onclick="generatePayslip()">📄 Generate Payslip</button>
+        </div>
+
+        <div id="payslip" class="payslip">
+            <div class="payslip-header">
+                <h2>SALARY SLIP</h2>
+                <p id="periodText"></p>
+            </div>
+
+            <div class="employee-info">
+                <div class="info-row">
+                    <span class="info-label">Employee Name:</span>
+                    <span id="empName"></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Employee ID:</span>
+                    <span id="empId"></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Pay Type:</span>
+                    <span id="payType"></span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Rate:</span>
+                    <span id="rate"></span>
+                </div>
+            </div>
+
+            <h3 style="margin-top: 20px; color: #333;">📅 Daily Attendance</h3>
+            <table class="attendance-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Day</th>
+                        <th>In Time</th>
+                        <th>Out Time</th>
+                        <th>Hours</th>
+                        <th>OT</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="attendanceBody"></tbody>
+            </table>
+
+            <div class="summary-section">
+                <h3 style="color: #333; margin-bottom: 15px;">📊 Summary</h3>
+                <div class="summary-grid">
+                    <div class="summary-item">
+                        <span class="summary-label">Total Days:</span>
+                        <span class="summary-value" id="totalDays">0</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">Present:</span>
+                        <span class="summary-value status-present" id="presentDays">0</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">Absent:</span>
+                        <span class="summary-value status-absent" id="absentDays">0</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">Holidays:</span>
+                        <span class="summary-value status-holiday" id="holidays">0</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">Total Hours:</span>
+                        <span class="summary-value" id="totalHours">0</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">Overtime Hours:</span>
+                        <span class="summary-value" id="overtimeHours">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="total-section">
+                <div class="total-row">
+                    <span>Regular Pay:</span>
+                    <span id="regularPay">₹0</span>
+                </div>
+                <div class="total-row">
+                    <span>Overtime Pay:</span>
+                    <span id="overtimePay">₹0</span>
+                </div>
+                <div class="total-row">
+                    <span>Gross Pay:</span>
+                    <span id="grossPay">₹0</span>
+                </div>
+                <div class="total-row" style="color: #ffcccc;">
+                    <span>(-) Advances Deducted:</span>
+                    <span id="advancesDeducted">₹0</span>
+                </div>
+                <div class="total-row net-pay">
+                    <span>NET PAY:</span>
+                    <span id="netPay">₹0</span>
+                </div>
+            </div>
+
+            <div style="margin-top: 30px; padding-top: 20px; border-top: 2px solid #e0e0e0; text-align: right;">
+                <p style="color: #666; font-size: 12px;">Generated on: <span id="generatedDate"></span></p>
+                <p style="color: #666; font-size: 12px; margin-top: 30px;">
+                    _____________________<br>
+                    Authorized Signature
+                </p>
+            </div>
+        </div>
+
+        <div class="actions">
+            <button class="btn btn-primary" onclick="window.print()" id="printBtn" style="display:none;">
+                🖨️ Print Payslip
+            </button>
+            <button class="btn btn-success" onclick="downloadPDF()" id="downloadBtn" style="display:none;">
+                📥 Download PDF
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Load employees
+        window.addEventListener('load', async () => {
+            try {
+                const response = await fetch('/api/employees');
+                const data = await response.json();
+
+                if (data.success) {
+                    const select = document.getElementById('employee_id');
+                    data.employees.forEach(emp => {
+                        const option = new Option(`${emp.emp_name} (${emp.employee_id})`, emp.employee_id);
+                        select.add(option);
+                    });
+                }
+            } catch (err) {
+                console.error('Error loading employees:', err);
+            }
+
+            // Set default dates (current month)
+            const today = new Date();
+            const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+            const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+
+            document.getElementById('from_date').valueAsDate = firstDay;
+            document.getElementById('to_date').valueAsDate = lastDay;
+        });
+
+        async function generatePayslip() {
+            const employeeId = document.getElementById('employee_id').value;
+            const fromDate = document.getElementById('from_date').value;
+            const toDate = document.getElementById('to_date').value;
+
+            if (!employeeId || !fromDate || !toDate) {
+                alert('Please select employee and date range');
+                return;
+            }
+
+            try {
+                // Get employee info
+                const empResponse = await fetch('/api/employees');
+                const empData = await empResponse.json();
+                const employee = empData.employees.find(e => e.employee_id === employeeId);
+
+                // Get attendance records
+                const attResponse = await fetch('/api/attendance_records', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({employee_id: employeeId, from_date: fromDate, to_date: toDate})
+                });
+                const attData = await attResponse.json();
+
+                // Get advances
+                const advResponse = await fetch(`/api/employee_advances/${employeeId}`);
+                const advData = await advResponse.json();
+
+                // Calculate totals
+                let totalHours = 0;
+                let totalOT = 0;
+                let totalPay = 0;
+                let presentDays = 0;
+                let totalDays = 0;
+
+                const tbody = document.getElementById('attendanceBody');
+                tbody.innerHTML = '';
+
+                // Generate date range
+                const start = new Date(fromDate);
+                const end = new Date(toDate);
+
+                for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+                    totalDays++;
+                    const dateStr = d.toISOString().split('T')[0];
+                    const dayName = d.toLocaleDateString('en-IN', {weekday: 'short'});
+
+                    const record = attData.records.find(r => r.date === dateStr);
+
+                    const row = document.createElement('tr');
+
+                    if (record) {
+                        presentDays++;
+                        totalHours += record.total_hours || 0;
+                        totalOT += record.overtime_hours || 0;
+                        totalPay += record.total_pay || 0;
+
+                        const inTime = record.start_time ? new Date(record.start_time).toLocaleTimeString('en-IN', {hour: '2-digit', minute: '2-digit'}) : '-';
+                        const outTime = record.end_time ? new Date(record.end_time).toLocaleTimeString('en-IN', {hour: '2-digit', minute: '2-digit'}) : '-';
+
+                        row.innerHTML = `
+                            <td>${dateStr}</td>
+                            <td>${dayName}</td>
+                            <td>${inTime}</td>
+                            <td>${outTime}</td>
+                            <td>${(record.total_hours || 0).toFixed(2)}</td>
+                            <td>${(record.overtime_hours || 0).toFixed(2)}</td>
+                            <td class="status-present">Present</td>
+                        `;
+                    } else {
+                        row.innerHTML = `
+                            <td>${dateStr}</td>
+                            <td>${dayName}</td>
+                            <td>-</td>
+                            <td>-</td>
+                            <td>0</td>
+                            <td>0</td>
+                            <td class="status-absent">Absent</td>
+                        `;
+                    }
+
+                    tbody.appendChild(row);
+                }
+
+                // Calculate advances in this period
+                let advancesInPeriod = 0;
+                if (advData.success) {
+                    advData.advances.forEach(adv => {
+                        if (adv.date >= fromDate && adv.date <= toDate) {
+                            advancesInPeriod += adv.amount;
+                        }
+                    });
+                }
+
+                const netPay = totalPay - advancesInPeriod;
+
+                // Fill payslip data
+                document.getElementById('empName').textContent = employee.emp_name;
+                document.getElementById('empId').textContent = employee.employee_id;
+                document.getElementById('payType').textContent = employee.pay_type.toUpperCase();
+                document.getElementById('rate').textContent = `₹${employee.rate}/${employee.pay_type === 'hourly' ? 'hr' : 'day'}`;
+
+                document.getElementById('periodText').textContent = `Period: ${fromDate} to ${toDate}`;
+
+                document.getElementById('totalDays').textContent = totalDays;
+                document.getElementById('presentDays').textContent = presentDays;
+                document.getElementById('absentDays').textContent = totalDays - presentDays;
+                document.getElementById('holidays').textContent = '0';
+                document.getElementById('totalHours').textContent = totalHours.toFixed(2);
+                document.getElementById('overtimeHours').textContent = totalOT.toFixed(2);
+
+                const regularHours = totalHours - totalOT;
+                const regularPay = regularHours * employee.rate;
+                const otPay = totalOT * employee.rate * 1.5;
+
+                document.getElementById('regularPay').textContent = `₹${regularPay.toFixed(2)}`;
+                document.getElementById('overtimePay').textContent = `₹${otPay.toFixed(2)}`;
+                document.getElementById('grossPay').textContent = `₹${totalPay.toFixed(2)}`;
+                document.getElementById('advancesDeducted').textContent = `₹${advancesInPeriod.toFixed(2)}`;
+                document.getElementById('netPay').textContent = `₹${netPay.toFixed(2)}`;
+
+                document.getElementById('generatedDate').textContent = new Date().toLocaleDateString('en-IN');
+
+                // Show payslip
+                document.getElementById('payslip').style.display = 'block';
+                document.getElementById('printBtn').style.display = 'inline-block';
+                document.getElementById('downloadBtn').style.display = 'inline-block';
+
+            } catch (err) {
+                alert('Error generating payslip: ' + err.message);
+                console.error(err);
+            }
+        }
+
+        function downloadPDF() {
+            alert('PDF download feature: Install a browser extension like "Print to PDF" or use the Print button and save as PDF');
+            window.print();
+        }
+    </script>
+</body>
+</html>
